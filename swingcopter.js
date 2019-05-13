@@ -251,6 +251,7 @@ function drawPlatforms() {
 		var grd2 = ctx.createLinearGradient(i.x+i.hitboxW-camera.x, i.y, i.x+i.hitboxW-34-camera.x, i.y);
 		grd2.addColorStop(0, '#FFFFFF');
 		grd2.addColorStop(1, "#000000");
+		if(i.x-camera.x+34<i.x-camera.x+i.hitboxW/2){
 		ctx.beginPath();
 		ctx.fillStyle = grd;
 		ctx.fillRect(i.x-camera.x, i.y-camera.y, 34,500);
@@ -263,22 +264,53 @@ function drawPlatforms() {
 		ctx.fillStyle = '#000000';
 		ctx.fillRect(i.x-camera.x+34, i.y-camera.y, i.hitboxW-68,500);
 		ctx.stroke();
+		}else{
+		ctx.beginPath();
+		ctx.fillStyle = grd;
+		ctx.fillRect(i.x-camera.x, i.y-camera.y, i.hitboxW/2,500);
+		ctx.stroke();
+		ctx.beginPath();
+		ctx.fillStyle = grd2;
+		ctx.fillRect(i.x-camera.x+i.hitboxW-i.hitboxW/2, i.y-camera.y, i.hitboxW/2,500);
+		ctx.stroke();
+		}
 		ctx.beginPath();
 		ctx.fillStyle = '#0000ff';
 		ctx.fillRect(i.x-camera.x, i.y-camera.y, i.hitboxW,10);
 		ctx.stroke();
+		if(i.x-camera.x+i.hitboxW/2+51<i.hitboxW){
 		ctx.beginPath();
 		ctx.fillStyle = '#00ff00';
 		ctx.fillRect(i.x-camera.x+i.hitboxW/2-51, i.y-camera.y, 102,10);
 		ctx.stroke();
+		}else{
+		ctx.beginPath();
+		ctx.fillStyle = '#00ff00';
+		ctx.fillRect(i.x-camera.x, i.y-camera.y, i.hitboxW,10);
+		ctx.stroke();
+		}
+		if(i.x-camera.x+i.hitboxW/2+34<i.hitboxW){
 		ctx.beginPath();
 		ctx.fillStyle = '#ffff00';
 		ctx.fillRect(i.x-camera.x+i.hitboxW/2-34, i.y-camera.y, 68,10);
 		ctx.stroke();
+		}else{
+		ctx.beginPath();
+		ctx.fillStyle = '#ffff00';
+		ctx.fillRect(i.x-camera.x, i.y-camera.y, i.hitboxW,10);
+		ctx.stroke();
+		}
+		if(i.x-camera.x+i.hitboxW/2+17<i.hitboxW){
 		ctx.beginPath();
 		ctx.fillStyle = '#FF0000';
 		ctx.fillRect(i.x-camera.x+i.hitboxW/2-17, i.y-camera.y, 34,10);
 		ctx.stroke();
+		}else{
+		ctx.beginPath();
+		ctx.fillStyle = '#ff0000';
+		ctx.fillRect(i.x-camera.x, i.y-camera.y, i.hitboxW,10);
+		ctx.stroke();
+		}
 		ctx.beginPath();
 		ctx.strokeStyle = '#000000';
 		ctx.rect(i.x-camera.x, i.y-camera.y, i.hitboxW,500);
