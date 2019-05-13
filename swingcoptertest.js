@@ -1,4 +1,3 @@
-
 var Images = {};
 var canvas = document.getElementById("myCanvas");
 //var skyCanvas = document.createElement("skyCanvas");
