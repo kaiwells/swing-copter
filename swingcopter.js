@@ -39,8 +39,8 @@ var player = {
 	h: 34,
 	xHitboxOffset: 0,
 	yHitboxOffset: 0,
-	hitboxW: 34,
-	hitboxH: 34,
+	w: 34,
+	h: 34,
 	rotation: 0,
 	rotateSpeed: 0,
 	type: CUBE,
@@ -232,8 +232,8 @@ function draw() {
 				yHitboxOffset: 0,
 				w: 86,
 				h: 126,
-				hitboxW: 86,
-				hitboxH: 126,
+				w: 86,
+				h: 126,
 				collisionDetected: false
 			});
 		}
@@ -245,75 +245,47 @@ function drawPlatforms() {
 	
 
 	platformsData.forEach( function(i, j) {
-		var grd = ctx.createLinearGradient(i.x-camera.x, i.y, i.x+34-camera.x, i.y);
+		var scale = 1;
+		if(i.w < 136) {
+			scale = i.w/136;
+		}
+		var grd = ctx.createLinearGradient(i.x-camera.x, i.y, i.x+34*scale-camera.x, i.y);
 		grd.addColorStop(0, '#FFFFFF');
 		grd.addColorStop(1, "#000000");
-		var grd2 = ctx.createLinearGradient(i.x+i.hitboxW-camera.x, i.y, i.x+i.hitboxW-34-camera.x, i.y);
+		var grd2 = ctx.createLinearGradient(i.x+i.w-camera.x, i.y, i.x+i.w-34*scale-camera.x, i.y);
 		grd2.addColorStop(0, '#FFFFFF');
 		grd2.addColorStop(1, "#000000");
-		if(i.x-camera.x+34<i.x-camera.x+i.hitboxW/2){
 		ctx.beginPath();
 		ctx.fillStyle = grd;
-		ctx.fillRect(i.x-camera.x, i.y-camera.y, 34,500);
+		ctx.fillRect(i.x-camera.x, i.y-camera.y, 34*scale,500);
 		ctx.stroke();
 		ctx.beginPath();
 		ctx.fillStyle = grd2;
-		ctx.fillRect(i.x-camera.x+i.hitboxW-34, i.y-camera.y, 34,500);
+		ctx.fillRect(i.x-camera.x+i.w-34*scale, i.y-camera.y, 34*scale,500);
 		ctx.stroke();
 		ctx.beginPath();
 		ctx.fillStyle = '#000000';
-		ctx.fillRect(i.x-camera.x+34, i.y-camera.y, i.hitboxW-68,500);
+		ctx.fillRect(i.x-camera.x+34*scale, i.y-camera.y, i.w-68*scale,500);
 		ctx.stroke();
-		}else{
-		ctx.beginPath();
-		ctx.fillStyle = grd;
-		ctx.fillRect(i.x-camera.x, i.y-camera.y, i.hitboxW/2,500);
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.fillStyle = grd2;
-		ctx.fillRect(i.x-camera.x+i.hitboxW-i.hitboxW/2, i.y-camera.y, i.hitboxW/2,500);
-		ctx.stroke();
-		}
 		ctx.beginPath();
 		ctx.fillStyle = '#0000ff';
-		ctx.fillRect(i.x-camera.x, i.y-camera.y, i.hitboxW,10);
+		ctx.fillRect(i.x-camera.x, i.y-camera.y, i.w,10);
 		ctx.stroke();
-		if(i.x-camera.x+i.hitboxW/2+51<i.hitboxW){
 		ctx.beginPath();
 		ctx.fillStyle = '#00ff00';
-		ctx.fillRect(i.x-camera.x+i.hitboxW/2-51, i.y-camera.y, 102,10);
+		ctx.fillRect(i.x-camera.x+i.w/2-51*scale, i.y-camera.y, 102*scale,10);
 		ctx.stroke();
-		}else{
-		ctx.beginPath();
-		ctx.fillStyle = '#00ff00';
-		ctx.fillRect(i.x-camera.x, i.y-camera.y, i.hitboxW,10);
-		ctx.stroke();
-		}
-		if(i.x-camera.x+i.hitboxW/2+34<i.hitboxW){
 		ctx.beginPath();
 		ctx.fillStyle = '#ffff00';
-		ctx.fillRect(i.x-camera.x+i.hitboxW/2-34, i.y-camera.y, 68,10);
+		ctx.fillRect(i.x-camera.x+i.w/2-34*scale, i.y-camera.y, 68*scale,10);
 		ctx.stroke();
-		}else{
-		ctx.beginPath();
-		ctx.fillStyle = '#ffff00';
-		ctx.fillRect(i.x-camera.x, i.y-camera.y, i.hitboxW,10);
-		ctx.stroke();
-		}
-		if(i.x-camera.x+i.hitboxW/2+17<i.hitboxW){
 		ctx.beginPath();
 		ctx.fillStyle = '#FF0000';
-		ctx.fillRect(i.x-camera.x+i.hitboxW/2-17, i.y-camera.y, 34,10);
+		ctx.fillRect(i.x-camera.x+i.w/2-17*scale, i.y-camera.y, 34*scale,10);
 		ctx.stroke();
-		}else{
-		ctx.beginPath();
-		ctx.fillStyle = '#ff0000';
-		ctx.fillRect(i.x-camera.x, i.y-camera.y, i.hitboxW,10);
-		ctx.stroke();
-		}
 		ctx.beginPath();
 		ctx.strokeStyle = '#000000';
-		ctx.rect(i.x-camera.x, i.y-camera.y, i.hitboxW,500);
+		ctx.rect(i.x-camera.x, i.y-camera.y, i.w,500);
 		ctx.stroke();
 		
 	});
@@ -323,8 +295,8 @@ function addPlatforms(x, y, w) {
 	platformsData.push ({
 		x: x,
 		y: y,
-		hitboxW: w,
-		hitboxH: 0
+		w: w,
+		h: 0
 	});
 }
 
@@ -363,7 +335,7 @@ function drawPlayer() {
 	
 	/*ctx.beginPath();
 	ctx.strokeStyle = '#FFFFFF';
-	ctx.rect(player.x-camera.x+CAMERA_PLAYER_OFFSET+player.xHitboxOffset, player.y+player.yHitboxOffset, player.hitboxW, player.hitboxH);
+	ctx.rect(player.x-camera.x+CAMERA_PLAYER_OFFSET+player.xHitboxOffset, player.y+player.yHitboxOffset, player.w, player.hitboxH);
 	ctx.stroke();*/
 
 }
@@ -397,54 +369,98 @@ function updatePlayer() {
 		}
 		player.vy += gravity;
 		platformsData.forEach( function(i, j) {
-			if(collides(i, player)){
+			if(collides(i, player)&&i.x+i.w/2>playerJumpPointX){
 				player.vx=0;
 				player.vy=-6;
 				player.y=i.y-player.h;
 				playerState = CELEBRATE;
 				camera.initialX = camera.x;
 				camera.initialY = camera.y;
-				playerJumpPointX = platformsData[1].x+platformsData[1].hitboxW;
+				playerJumpPointX = platformsData[1].x+platformsData[1].w;
 				playerJumpPointY = platformsData[1].y-player.h;
-				if(player.x+player.hitboxW/2>platformsData[1].x+platformsData[1].hitboxW/2-17&&player.x+player.hitboxW/2<platformsData[1].x+platformsData[1].hitboxW/2+17){
-					score+=1000;
-					scoreTimer = 0;
-					scoreMessage.message = "Perfect!";
-					scoreMessage.score = "+1000";
-					scoreMessage.x = player.x;
-					scoreMessage.y = player.y;
-				}else if(player.x+player.hitboxW/2>platformsData[1].x+platformsData[1].hitboxW/2-34&&player.x+player.hitboxW/2<platformsData[1].x+platformsData[1].hitboxW/2+34){
-					score+=500;
-					scoreTimer = 0;
-					scoreMessage.message = "Excellent!";
-					scoreMessage.score = "+500";
-					scoreMessage.x = player.x;
-					scoreMessage.y = player.y;
-				}else if(player.x+player.hitboxW/2>platformsData[1].x+platformsData[1].hitboxW/2-51&&player.x+player.hitboxW/2<platformsData[1].x+platformsData[1].hitboxW/2+51){
-					score+=200;
-					scoreTimer = 0;
-					scoreMessage.message = "Good!";
-					scoreMessage.score = "+200";
-					scoreMessage.x = player.x;
-					scoreMessage.y = player.y;
-				}else if(player.x+player.hitboxW/2>=platformsData[1].x&&player.x+player.hitboxW/2<=platformsData[1].x+platformsData[1].hitboxW){
-					score+=100;
-					scoreTimer = 0;
-					scoreMessage.message = "Okay!";
-					scoreMessage.score = "+100";
-					scoreMessage.x = player.x;
-					scoreMessage.y = player.y;
+				if(i.x-camera.x+i.w/2+68<i.x-camera.x+i.w){
+					if(player.x+player.w/2>platformsData[1].x+platformsData[1].w/2-17&&player.x+player.w/2<platformsData[1].x+platformsData[1].w/2+17){
+						score+=1000;
+						scoreTimer = 0;
+						scoreMessage.message = "Perfect!";
+						scoreMessage.score = "+1000";
+						scoreMessage.x = player.x;
+						scoreMessage.y = player.y;
+					}else if(player.x+player.w/2>platformsData[1].x+platformsData[1].w/2-34&&player.x+player.w/2<platformsData[1].x+platformsData[1].w/2+34){
+						score+=500;
+						scoreTimer = 0;
+						scoreMessage.message = "Excellent!";
+						scoreMessage.score = "+500";
+						scoreMessage.x = player.x;
+						scoreMessage.y = player.y;
+					}else if(player.x+player.w/2>platformsData[1].x+platformsData[1].w/2-51&&player.x+player.w/2<platformsData[1].x+platformsData[1].w/2+51){
+						score+=200;
+						scoreTimer = 0;
+						scoreMessage.message = "Good!";
+						scoreMessage.score = "+200";
+						scoreMessage.x = player.x;
+						scoreMessage.y = player.y;
+					}else if(player.x+player.w/2>=platformsData[1].x&&player.x+player.w/2<=platformsData[1].x+platformsData[1].w){
+						score+=100;
+						scoreTimer = 0;
+						scoreMessage.message = "Okay!";
+						scoreMessage.score = "+100";
+						scoreMessage.x = player.x;
+						scoreMessage.y = player.y;
+					}else{
+						score+=50;
+						scoreTimer = 0;
+						scoreMessage.message = "OMG I SWEAR U GONNA DIE!";
+						scoreMessage.score = "+50";
+						scoreMessage.x = player.x;
+						scoreMessage.y = player.y;
+					}
 				}else{
-					score+=50;
-					scoreTimer = 0;
-					scoreMessage.message = "OMG I SWEAR U GONNA DIE!";
-					scoreMessage.score = "+50";
-					scoreMessage.x = player.x;
-					scoreMessage.y = player.y;
+					if(player.x+player.w/2>platformsData[1].x+3*platformsData[1].w/8&&player.x+player.w/2<platformsData[1].x+5*platformsData[1].w/8){
+						score+=1000;
+						scoreTimer = 0;
+						scoreMessage.message = "Perfect!";
+						scoreMessage.score = "+1000";
+						scoreMessage.x = player.x;
+						scoreMessage.y = player.y;
+					}else if(player.x+player.w/2>platformsData[1].x+platformsData[1].w/4&&player.x+player.w/2<platformsData[1].x+3*platformsData[1].w/4){
+						score+=500;
+						scoreTimer = 0;
+						scoreMessage.message = "Excellent!";
+						scoreMessage.score = "+500";
+						scoreMessage.x = player.x;
+						scoreMessage.y = player.y;
+					}else if(player.x+player.w/2>platformsData[1].x+platformsData[1].w/8&&player.x+player.w/2<platformsData[1].x+7*platformsData[1].w/8){
+						score+=200;
+						scoreTimer = 0;
+						scoreMessage.message = "Good!";
+						scoreMessage.score = "+200";
+						scoreMessage.x = player.x;
+						scoreMessage.y = player.y;
+					}else if(player.x+player.w/2>platformsData[1].x&&player.x+player.w/2<platformsData[1].x+platformsData[1].w){
+						score+=100;
+						scoreTimer = 0;
+						scoreMessage.message = "Okay!";
+						scoreMessage.score = "+100";
+						scoreMessage.x = player.x;
+						scoreMessage.y = player.y;
+					}else{
+						score+=50;
+						scoreTimer = 0;
+						scoreMessage.message = "OMG I SWEAR U GONNA DIE!";
+						scoreMessage.score = "+50";
+						scoreMessage.x = player.x;
+						scoreMessage.y = player.y;
+					}
 				}
-				addPlatforms(platformsData[1].x+700, platformsData[1].y+40, platformsData[1].hitboxW-10);
+				addPlatforms(platformsData[1].x+700, platformsData[1].y+40, platformsData[1].w-10);
 			}
 		});
+		if(player.y>720+camera.y){
+			player.x=playerJumpPointX-player.w;
+			player.y=playerJumpPointY;
+			playerState=ROPE;
+		}
 	} else if(playerState===CELEBRATE){
 		player.rotation+=5;
 		player.vy += gravity;
@@ -784,10 +800,10 @@ function tileOffScreen() {
 }
 
 function collides(a, b) {
-	return	a.x - camera.x < b.x - camera.x + b.hitboxW &&
-	a.x - camera.x + a.hitboxW > b.x - camera.x &&
-	a.y - camera.y < b.y - camera.y + b.hitboxH &&
-	a.y - camera.y + a.hitboxH > b.y - camera.y;
+	return	a.x - camera.x < b.x - camera.x + b.w &&
+	a.x - camera.x + a.w > b.x - camera.x &&
+	a.y - camera.y < b.y - camera.y + b.h &&
+	a.y - camera.y + a.h > b.y - camera.y;
 }
 
 function checkCollision() {
