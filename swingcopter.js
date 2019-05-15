@@ -98,7 +98,7 @@ var particleTimer = 0;
 var score = 0;
 var finalScore = 0;
 var scoreIncrement = 0;
-var playerJumpPointX = 200;
+var playerJumpPointX = 150;
 var playerJumpPointY = 226;
 var highscore = localStorage.getItem("geomtetrysmashHighscore");
 var gameMode;
@@ -187,8 +187,8 @@ function gameOver() {
 	resultTimer = 0;
 }
 
-addPlatforms(0, 260, 200);
-addPlatforms(700, 300, 190);
+addPlatforms(0, 260, 150);
+addPlatforms(700, 300, 200);
 
 function draw() {
 	if(IMAGES_LOADED === 1){
@@ -453,7 +453,7 @@ function updatePlayer() {
 						scoreMessage.y = player.y;
 					}
 				}
-				addPlatforms(platformsData[1].x+700, platformsData[1].y+40, platformsData[1].w-10);
+				addPlatforms(platformsData[1].x+Math.random()*300+500, platformsData[1].y+Math.random()*300, platformsData[1].w+Math.random()*100-50);
 			}
 		});
 		if(player.y>720+camera.y){
