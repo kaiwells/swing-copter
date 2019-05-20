@@ -66,6 +66,12 @@ var imageData = [{
 },{
 	name: "background",
 	url: "img/background.png",
+},{
+	name: "life",
+	url: "img/life.png",
+},{
+	name: "lifelost",
+	url: "img/lifelost.png",
 }];
 var audio = {
 	song: document.getElementById("song"),
@@ -94,6 +100,7 @@ var MOVING=2;
 var ROPE = 3;
 var REPOSITION = 4;
 var CELEBRATE = 5;
+var GG = 6;
 var gameHasStarted = 0;
 var timer = 0;
 var particleTimer = 0;
@@ -109,6 +116,9 @@ var repositionTimer = -1;
 var REPOSITIONTIME = 50;
 var ROPETIME = 30;
 var scoreTimer = 100;
+var lives = 3;
+var sequences = [200, 170, 140, 120, 100, 70];
+var level = 0;
 
 //var painting = document.getElementById('paint');
 //var paint_style = getComputedStyle(painting);
@@ -199,8 +209,8 @@ function draw() {
 		drawBG();
 		//drawGround();
 		updatePlayer();
-		drawPlayer();
 		drawPlatforms();
+		drawPlayer();
 		drawRope();
 		//updateObstacles();
 		//drawObstacles();
@@ -329,11 +339,13 @@ function drawGround() {
 }
 
 function drawPlayer() {
-	ctx.save();
-	ctx.translate(player.x-camera.x+player.w/2,player.y-camera.y+player.h/2);
-	ctx.rotate(player.rotation*Math.PI/180);
-	ctx.drawImage(Images["player"], -player.w/2, -player.h/2);
-	ctx.restore();
+	if(playerState!=GG){
+		ctx.save();
+		ctx.translate(player.x-camera.x+player.w/2,player.y-camera.y+player.h/2);
+		ctx.rotate(player.rotation*Math.PI/180);
+		ctx.drawImage(Images["player"], -player.w/2, -player.h/2);
+		ctx.restore();
+	}
 	
 	/*ctx.beginPath();
 	ctx.strokeStyle = '#FFFFFF';
@@ -421,13 +433,22 @@ function updatePlayer() {
 					scoreMessage.x = player.x;
 					scoreMessage.y = player.y;
 				}
-				addPlatforms(i.x+700, i.y+50, i.w-10);
+				if(Math.floor(level/5)<sequences.length){
+					addPlatforms(i.x+700, i.y+50+Math.random() * 250, sequences[Math.floor(level/5)]-Math.random() * 30);
+				}else{
+					addPlatforms(i.x+700, i.y+50+Math.random() * 250, 70-Math.random() * 30);
+				}
+				level++;
 			}
 		});
 		if(player.y>720+camera.y){
 			player.x=playerJumpPointX-player.w;
 			player.y=playerJumpPointY;
 			playerState=ROPE;
+			lives--;
+			if(lives===0){
+				playerState=GG;
+			}
 		}
 	} else if(playerState===CELEBRATE){
 		player.rotation+=5;
@@ -947,10 +968,12 @@ function drawHud() {
 	ctx.beginPath();
 	ctx.font = "30px pusab";
 	ctx.strokeStyle = '#000000';
-	ctx.strokeText(score, 10, 50);
+	ctx.strokeText("Score: " + score, 10, 50);
+	ctx.strokeText("Jumps: " + level, 10, 90);
 	ctx.lineWidth = 1;
 	ctx.fillStyle = '#ffffff';
-	ctx.fillText(score, 10, 50);
+	ctx.fillText("Score: " + score, 10, 50);
+	ctx.fillText("Jumps: " + level, 10, 90);
 	ctx.stroke();
 	if(scoreTimer<60){
 		var messageShakeOffset = 0;
@@ -980,6 +1003,11 @@ function drawHud() {
 		//repositionTimer = 0;
 		//player.rotation=0;
 		//player.y=platformsData[1].y-player.h;
+	}
+	if(playerState!=GG){
+		for(i=0;i<lives-1;i++){
+			ctx.drawImage(Images["life"], i*70+20, 650, 50, 50);
+		}
 	}
 }
 
