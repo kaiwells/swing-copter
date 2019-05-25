@@ -110,7 +110,7 @@ var finalScore = 0;
 var scoreIncrement = 0;
 var playerJumpPointX = 150;
 var playerJumpPointY = 226;
-var highscore = localStorage.getItem("geomtetrysmashHighscore");
+var highscore = localStorage.getItem("swingcopterHighscore");
 var gameMode;
 var attachTimer = 0;
 var repositionTimer = -1;
@@ -491,6 +491,15 @@ function updatePlayer() {
 			lives--;
 			if(lives===0){
 				playerState=GG;
+				if (highscore !== null) {
+					if (score > highscore) {
+						highscore = score;
+						localStorage.setItem("swingcopterHighscore", score);      
+					}
+				} else {
+					highscore = score;
+					localStorage.setItem("swingcopterHighscore", score);
+				}
 			}
 		}
 	} else if(playerState===CELEBRATE){
