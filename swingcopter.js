@@ -93,7 +93,7 @@ var camera = {
 	initialY: 0
 };
 var top5Scores = [0,0,0,0,0];
-var playerState = 2;
+var playerState = 7;
 var JUMPED=1;
 var SWINGING=0;
 var MOVING=2;
@@ -101,6 +101,7 @@ var ROPE = 3;
 var REPOSITION = 4;
 var CELEBRATE = 5;
 var GG = 6;
+var TITLE = 7;
 var gameHasStarted = 0;
 var timer = 0;
 var particleTimer = 0;
@@ -143,6 +144,48 @@ canvas.addEventListener('mousedown', function(e) {
 			playerState=JUMPED;
 			attachTimer=0;
 		}
+	}
+	if(playerState === TITLE){
+		playerState = 2;
+	}
+	if(playerState === GG){
+		playerState = 7;
+		camera = camera = {
+			x: 0, 
+			y: 0, 
+			w: canvas.width, 
+			h: canvas.height,
+			a: 0,
+			generateObstacles: 0,
+			bg: 0,
+			initialX: 0,
+			initialY: 0
+		};
+		player = {
+			x: 66,
+			y: 226,
+			vx: 0,
+			vy: 0,
+			w: 34,
+			h: 34,
+			xHitboxOffset: 0,
+			yHitboxOffset: 0,
+			w: 34,
+			h: 34,
+			rotation: 0,
+			rotateSpeed: 0,
+			type: CUBE,
+			attempt: 1, 
+			ropeRotation: 0,
+			rotationVelocity: -2
+		};
+		playerJumpPointX = 150;
+		playerJumpPointY = 226;
+		lives=3;
+		score=0;
+		platformsData.splice(0, 9999);
+		addPlatforms(0, 260, 150);
+		addPlatforms(700, 300, 200);
 	}
 }, false);
 
@@ -964,17 +1007,22 @@ function updateScore() {
 }
 
 function drawHud() {
-	ctx.lineWidth = 7;
-	ctx.beginPath();
-	ctx.font = "30px pusab";
-	ctx.strokeStyle = '#000000';
-	ctx.strokeText("Score: " + score, 10, 50);
-	ctx.strokeText("Jumps: " + level, 10, 90);
-	ctx.lineWidth = 1;
-	ctx.fillStyle = '#ffffff';
-	ctx.fillText("Score: " + score, 10, 50);
-	ctx.fillText("Jumps: " + level, 10, 90);
-	ctx.stroke();
+	if(playerState!=TITLE){
+		ctx.lineWidth = 7;
+		ctx.beginPath();
+		ctx.font = "30px pusab";
+		ctx.strokeStyle = '#000000';
+		ctx.strokeText("Score: " + score, 10, 50);
+		ctx.strokeText("Jumps: " + level, 10, 90);
+		ctx.lineWidth = 1;
+		ctx.fillStyle = '#ffffff';
+		ctx.fillText("Score: " + score, 10, 50);
+		ctx.fillText("Jumps: " + level, 10, 90);
+		ctx.stroke();
+		for(i=0;i<lives-1;i++){
+			ctx.drawImage(Images["life"], i*70+20, 650, 50, 50);
+		}
+	}
 	if(scoreTimer<60){
 		var messageShakeOffset = 0;
 		if(scoreTimer<messageShake.length){
@@ -1004,10 +1052,47 @@ function drawHud() {
 		//player.rotation=0;
 		//player.y=platformsData[1].y-player.h;
 	}
-	if(playerState!=GG){
-		for(i=0;i<lives-1;i++){
-			ctx.drawImage(Images["life"], i*70+20, 650, 50, 50);
-		}
+	if(playerState===TITLE){
+		ctx.textAlign = "center";
+		var grd = ctx.createLinearGradient(0, 60, 0, 120);
+		grd.addColorStop(0, '#65FF00');
+		grd.addColorStop(1, "#2c7000");
+		ctx.font = "90px oxygene1";
+		ctx.lineWidth = 7;
+		ctx.strokeStyle = '#000000';
+		ctx.strokeText("SWING COPTER", 640, 120);
+		ctx.fillStyle = grd;//'#65FF00';
+		ctx.lineWidth = 1;
+		ctx.fillText("SWING COPTER",640,120);
+		ctx.lineWidth = 7;
+		ctx.strokeStyle = '#000000';
+		ctx.font = "30px pusab";
+		ctx.strokeText("Highscore: " + highscore,640,360);
+		ctx.lineWidth = 1;
+		ctx.fillStyle = '#FFFFFF';
+		ctx.fillText("Highscore: " + highscore,640,360);
+		ctx.font = "45px pusab";
+		ctx.lineWidth = 20;
+		ctx.strokeStyle = '#ff9400';
+		ctx.strokeText("Click to start",640,660);
+		ctx.lineWidth = 1;
+		ctx.fillStyle = '#000000';
+		ctx.fillText("Click to start",640,660);
+	}
+	if(playerState===GG){
+		ctx.textAlign="center";
+		ctx.font = "30px pusab";
+		ctx.lineWidth = 7;
+		ctx.strokeText("Click to go back",640,140);
+		ctx.lineWidth = 1;
+		ctx.fillText("Click to go back",640,140);
+		ctx.font = "45px pusab";
+		ctx.lineWidth = 7;
+		ctx.strokeText("Final score: " + score,640,260);
+		ctx.strokeText("Highscore: " + highscore,640,350);
+		ctx.lineWidth = 1;
+		ctx.fillText("Final score: " + score,640,260);
+		ctx.fillText("Highscore: " + highscore,640,350);
 	}
 }
 
