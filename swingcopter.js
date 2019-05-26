@@ -94,6 +94,7 @@ var imageData = [{
 }];
 var audio = {
 	song: document.getElementById("song"),
+	death: document.getElementById("death"),
 	song2: document.getElementById("song2")
 };
 var platformsData = [];
@@ -136,12 +137,13 @@ var REPOSITIONTIME = 50;
 var ROPETIME = 30;
 var scoreTimer = 100;
 var lives = 3;
-var sequences = [200, 170, 140, 120, 100, 70];
-var gravitySequences = [0.2, 0.16, 0.24, 0.22, 0.26, 0.2, 0.2, 0.28, 0.12, 0.16, 0.2, 0.18, 0.3, 0.24, 0.28];
-var resistanceSequences = [0.2, 0.2, 0.26, 0.16, 0.24, 0.2, 0.22, 0.24, 0.18, 0.28, 0.2, 0.22, 0.14, 0.18, 0.26];
+var sequences = [200, 180, 160, 140, 120, 140, 120, 100, 80, 70, 100, 80, 70];
+var gravitySequences = [0.2, 0.16, 0.24, 0.22, 0.26, 0.2, 0.2, 0.28, 0.12, 0.16, 0.2, 0.18, 0.3, 0.24, 0.28, 0.2, 0.16, 0.24, 0.26, 0.22, 0.2, 0.16, 0.32, 0.1, 0.3, 0.2];
+var resistanceSequences = [0.2, 0.2, 0.26, 0.16, 0.24, 0.2, 0.22, 0.24, 0.18, 0.28, 0.2, 0.22, 0.14, 0.18, 0.26, 0.2, 0.24, 0.16, 0.12, 0.28, 0.2, 0.26, 0.12, 0.3, 0.1, 0.2];
 var resizes = [3, 2, 1, 0, -1];
 var level = 0;
-var hacks = true;
+var hacks = false;
+var mute = false;
 
 //var painting = document.getElementById('paint');
 //var paint_style = getComputedStyle(painting);
@@ -150,6 +152,27 @@ var hacks = true;
 
 var mouse = {x: 0, y: 0};
  
+document.addEventListener('keydown', function (e) {
+	key[e.keyCode] = true;
+	if (event.keyCode === 72) {
+		hacks=true;
+    }
+	if (event.keyCode === 77) {
+		if(mute===false){
+			audio.song.pause();
+			audio.song2.pause();
+			mute=true;
+		}else{
+			if(trumpMode===false){
+				audio.song.play();
+			}else{
+				audio.song2.play();
+			}
+			mute=false;
+		}
+    }
+}, false);
+
 canvas.addEventListener('mousemove', function(e) {
   mouse.x = e.pageX - this.offsetLeft;
   mouse.y = e.pageY - this.offsetTop;
@@ -169,9 +192,11 @@ canvas.addEventListener('mousedown', function(e) {
 	}
 	if(playerState === TITLE){
 		playerState = 2;
-		audio.song.load()
-		audio.song.play()
-		audio.song.loop = true;
+		if(mute===false){
+			audio.song.load()
+			audio.song.play()
+			audio.song.loop = true;
+		}
 	}
 	if(playerState === GG){
 		playerState = 7;
@@ -212,9 +237,9 @@ canvas.addEventListener('mousedown', function(e) {
 		trumpMode=false;
 		platformsData.splice(0, 9999);
 		addPlatforms(0, 260, 150);
-		addPlatforms(700, 300, 200);
+		addPlatforms(700, 550, 200);
 	}
-	if(playerState===JUMPED){
+	if(playerState===JUMPED&&hacks===true){
 		player.vx+=2;
 	}
 }, false);
@@ -273,12 +298,12 @@ function gameOver() {
 }
 
 addPlatforms(0, 260, 150);
-addPlatforms(700, 300, 200);
+addPlatforms(700, 550, 200);
 
 function draw() {
-	if(IMAGES_LOADED === 1){
-		ctx.textAlign = "left";
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.textAlign = "left";
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	if(IMAGES_LOADED === 1&&playerState!=99){
 		drawBG();
 		//drawGround();
 		updatePlayer();
@@ -297,6 +322,19 @@ function draw() {
 		//updateScore();
 		updateCamera();
 		drawHud();
+	}
+	if(playerState===99){
+		ctx.textAlign="center";
+		ctx.font = "30px qqqqqqqqqqq";
+		ctx.strokeStyle = "#000000"
+		ctx.lineWidth = 1;
+		ctx.strokeText("Whoops, the game crashed.",640,140);
+		ctx.strokeText("Please reload the page to continue.",640,180);
+		ctx.fillStyle = "#000000"
+		ctx.fillText("Whoops, the game crashed.",640,140);
+		ctx.fillText("Please reload the page to continue.",640,180);
+		audio.song.pause();
+		audio.song2.pause();
 	}
 }
 
@@ -449,7 +487,11 @@ function updatePlayer() {
 				player.vx=0;
 				player.vy=-6;
 				player.y=i.y-player.h;
-				playerState = CELEBRATE;
+				if(Math.random() * 100 >99&&hacks===true){
+					playerState = 99;
+				}else{
+					playerState = CELEBRATE;
+				}
 				camera.initialX = camera.x;
 				camera.initialY = camera.y;
 				playerJumpPointX = i.x+i.w;
@@ -491,9 +533,9 @@ function updatePlayer() {
 					scoreMessage.y = player.y;
 				}
 				if(Math.floor(level/5)<sequences.length){
-					addPlatforms(i.x+700, i.y+50+Math.random() * 250, sequences[Math.floor(level/5)]-Math.random() * 30);
+					addPlatforms(i.x+650+Math.random() * 150, i.y+50+Math.random() * 250, sequences[Math.floor(level/5)]-Math.random() * 30);
 				}else{
-					addPlatforms(i.x+700, i.y+50+Math.random() * 250, 70-Math.random() * 30);
+					addPlatforms(i.x+650+Math.random() * 150, i.y+50+Math.random() * 250, 70-Math.random() * 30);
 				}
 				level++;
 			}else if(collides(i, player)&&level===0){
@@ -501,10 +543,12 @@ function updatePlayer() {
 				player.y=playerJumpPointY;
 				playerState=ROPE;
 				trumpMode=true;
-				audio.song.pause();
-				audio.song2.load();
-				audio.song2.play();
-				audio.song2.loop = true;
+				if(mute===false){
+					audio.song.pause();
+					audio.song2.load();
+					audio.song2.play();
+					audio.song2.loop = true;
+				}
 			}
 		});
 		if(player.y>720+camera.y){
@@ -512,22 +556,30 @@ function updatePlayer() {
 			player.y=playerJumpPointY;
 			playerState=ROPE;
 			lives--;
-			for(var i=0;i<resizes.length;i++){
-				platformsData[1].x-=resizes[i];
-				platformsData[1].w+=resizes[i]*2;
+			if(mute===false){
+				audio.death.load();
+				audio.death.play();
+			}
+			if(lives!=0){
+				for(var i=0;i<resizes.length;i++){
+					platformsData[1].x-=resizes[i];
+					platformsData[1].w+=resizes[i]*2;
+				}
 			}
 			if(lives===0){
 				playerState=GG;
 				audio.song.pause();
 				audio.song2.pause();
-				if (highscore !== null) {
-					if (score > highscore) {
+				if(hacks===false){
+					if (highscore !== null) {
+						if (score > highscore) {
+							highscore = score;
+							localStorage.setItem("swingcopterHighscore", score);      
+						}
+					} else {
 						highscore = score;
-						localStorage.setItem("swingcopterHighscore", score);      
+						localStorage.setItem("swingcopterHighscore", score);
 					}
-				} else {
-					highscore = score;
-					localStorage.setItem("swingcopterHighscore", score);
 				}
 			}
 		}
@@ -1055,7 +1107,7 @@ function drawHud() {
 		ctx.font = "30px pusab";
 		ctx.strokeStyle = '#000000';
 		ctx.strokeText("Score: " + score, 10, 50);
-		ctx.strokeText("Jumps: " + level, 10, 90);
+		ctx.strokeText("Level: " + String.fromCharCode(65+Math.floor(level/5)) + "-" + (level%5+1), 10, 90);
 		if(gravity!=0.2){
 			ctx.strokeText("Gravity: " + Math.abs(Math.ceil((gravity-0.2)*50)), 900, 50);
 			if(gravity>0.2){
@@ -1075,7 +1127,7 @@ function drawHud() {
 		ctx.lineWidth = 1;
 		ctx.fillStyle = '#ffffff';
 		ctx.fillText("Score: " + score, 10, 50);
-		ctx.fillText("Jumps: " + level, 10, 90);
+		ctx.fillText("Level: " + String.fromCharCode(65+Math.floor(level/5)) + "-" + (level%5+1), 10, 90);
 		if(gravity!=0.2){
 			ctx.fillText("Gravity: " + Math.abs(Math.ceil((gravity-0.2)*50)), 900, 50);
 		}
@@ -1145,10 +1197,12 @@ function drawHud() {
 		ctx.lineWidth = 7;
 		ctx.strokeStyle = '#000000';
 		ctx.font = "15px pusab";
-		ctx.strokeText("Music by 1f1n1ty and Donald Trump",1050,695);
+		ctx.strokeText("Music by 1f1n1ty and Donald Trump",1050,688);
+		ctx.strokeText("Press M to mute/unmute music",1050,703);
 		ctx.lineWidth = 1;
 		ctx.fillStyle = '#FFFFFF';
-		ctx.fillText("Music by 1f1n1ty and Donald Trump",1050,695);
+		ctx.fillText("Music by 1f1n1ty and Donald Trump",1050,688);
+		ctx.fillText("Press M to mute/unmute music",1050,703);
 	}
 	if(playerState===GG){
 		ctx.textAlign="center";
@@ -1161,9 +1215,19 @@ function drawHud() {
 		ctx.lineWidth = 7;
 		ctx.strokeText("Final score: " + score,640,260);
 		ctx.strokeText("Highscore: " + highscore,640,350);
+		if(hacks===true){
+			ctx.font = "15px pusab";
+			ctx.strokeText("If you beat the highscore it will not be recored due to detected use of hacks",640,400);
+			ctx.font = "45px pusab";
+		}
 		ctx.lineWidth = 1;
 		ctx.fillText("Final score: " + score,640,260);
 		ctx.fillText("Highscore: " + highscore,640,350);
+		if(hacks===true){
+			ctx.font = "15px pusab";
+			ctx.fillText("If you beat the highscore it will not be recored due to detected use of hacks",640,400);
+			ctx.font = "30px pusab";
+		}
 	}
 }
 
@@ -1204,7 +1268,5 @@ function drawSky() {
 		skyCamera.ybg=0;
 	}
 }
-canvas.addEventListener("keydown", function (e) {
-	key[e.keyCode] = true;
-}, false);
+
 setInterval(draw, 17);
