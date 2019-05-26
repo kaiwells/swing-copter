@@ -30,6 +30,7 @@ var attachPointY = 0;
 var key = [];
 var ctx = canvas.getContext("2d");//document.querySelector("canvas").getContext("2d");
 //var ctxSky = document.createElement("skyCanvas").getContext("2d");
+var trumpMode = false;
 var player = {
 	x: 66,
 	y: 226,
@@ -72,11 +73,28 @@ var imageData = [{
 },{
 	name: "lifelost",
 	url: "img/lifelost.png",
+},{
+	name: "arrowright",
+	url: "img/arrowright.png",
+},{
+	name: "arrowleft",
+	url: "img/arrowleft.png",
+},{
+	name: "arrowup",
+	url: "img/arrowup.png",
+},{
+	name: "arrowdown",
+	url: "img/arrowdown.png",
+},{
+	name: "trump",
+	url: "img/trump.png",
+},{
+	name: "trumpcube",
+	url: "img/trumpcube.png",
 }];
 var audio = {
 	song: document.getElementById("song"),
-	death: document.getElementById("death"),
-	menu: document.getElementById("menu")
+	song2: document.getElementById("song2")
 };
 var platformsData = [];
 var landingPoints = [];
@@ -119,7 +137,11 @@ var ROPETIME = 30;
 var scoreTimer = 100;
 var lives = 3;
 var sequences = [200, 170, 140, 120, 100, 70];
+var gravitySequences = [0.2, 0.16, 0.24, 0.22, 0.26, 0.2, 0.2, 0.28, 0.12, 0.16, 0.2, 0.18, 0.3, 0.24, 0.28];
+var resistanceSequences = [0.2, 0.2, 0.26, 0.16, 0.24, 0.2, 0.22, 0.24, 0.18, 0.28, 0.2, 0.22, 0.14, 0.18, 0.26];
+var resizes = [3, 2, 1, 0, -1];
 var level = 0;
+var hacks = true;
 
 //var painting = document.getElementById('paint');
 //var paint_style = getComputedStyle(painting);
@@ -147,6 +169,9 @@ canvas.addEventListener('mousedown', function(e) {
 	}
 	if(playerState === TITLE){
 		playerState = 2;
+		audio.song.load()
+		audio.song.play()
+		audio.song.loop = true;
 	}
 	if(playerState === GG){
 		playerState = 7;
@@ -183,9 +208,14 @@ canvas.addEventListener('mousedown', function(e) {
 		playerJumpPointY = 226;
 		lives=3;
 		score=0;
+		level=0;
+		trumpMode=false;
 		platformsData.splice(0, 9999);
 		addPlatforms(0, 260, 150);
 		addPlatforms(700, 300, 200);
+	}
+	if(playerState===JUMPED){
+		player.vx+=2;
 	}
 }, false);
 
@@ -255,6 +285,7 @@ function draw() {
 		drawPlatforms();
 		drawPlayer();
 		drawRope();
+		updateField();
 		//updateObstacles();
 		//drawObstacles();
 		tileOffScreen();
@@ -266,33 +297,12 @@ function draw() {
 		//updateScore();
 		updateCamera();
 		drawHud();
-		if(gameHasStarted===0&&key[13]){
-			camera.x=0;
-			player.vx=30;
-			player.y=GROUND_LEVEL-player.h;
-			player.vy=-30;
-			audio.song.load();
-			audio.song.loop = true;
-			audio.menu.pause();
-			gameHasStarted=1;
-			playerState=LAUNCH;
-			player.type=CUBE;
-			score=0;
-			platformsData.push ({
-				type: CLOWN,
-				img: Images["mirrorportal"],
-				x: 0,
-				y: GROUND_LEVEL-126,
-				xHitboxOffset: 0,
-				yHitboxOffset: 0,
-				w: 86,
-				h: 126,
-				w: 86,
-				h: 126,
-				collisionDetected: false
-			});
-		}
 	}
+}
+
+function updateField() {
+	gravity = gravitySequences[Math.floor(level/5)%15];
+	RESISTANCE = resistanceSequences[Math.floor(level/5)%15];
 }
 
 function drawPlatforms() {
@@ -386,7 +396,11 @@ function drawPlayer() {
 		ctx.save();
 		ctx.translate(player.x-camera.x+player.w/2,player.y-camera.y+player.h/2);
 		ctx.rotate(player.rotation*Math.PI/180);
-		ctx.drawImage(Images["player"], -player.w/2, -player.h/2);
+		if(trumpMode===false){
+			ctx.drawImage(Images["player"], -player.w/2, -player.h/2);
+		}else{
+			ctx.drawImage(Images["trumpcube"], -player.w/2, -player.h/2);
+		}
 		ctx.restore();
 	}
 	
@@ -482,6 +496,15 @@ function updatePlayer() {
 					addPlatforms(i.x+700, i.y+50+Math.random() * 250, 70-Math.random() * 30);
 				}
 				level++;
+			}else if(collides(i, player)&&level===0){
+				player.x=playerJumpPointX-player.w;
+				player.y=playerJumpPointY;
+				playerState=ROPE;
+				trumpMode=true;
+				audio.song.pause();
+				audio.song2.load();
+				audio.song2.play();
+				audio.song2.loop = true;
 			}
 		});
 		if(player.y>720+camera.y){
@@ -489,8 +512,14 @@ function updatePlayer() {
 			player.y=playerJumpPointY;
 			playerState=ROPE;
 			lives--;
+			for(var i=0;i<resizes.length;i++){
+				platformsData[1].x-=resizes[i];
+				platformsData[1].w+=resizes[i]*2;
+			}
 			if(lives===0){
 				playerState=GG;
+				audio.song.pause();
+				audio.song2.pause();
 				if (highscore !== null) {
 					if (score > highscore) {
 						highscore = score;
@@ -625,7 +654,11 @@ function createObstacles() {
 		
 function drawBG() {
 	for(var i = 0; i < 3; i++){
+		if(trumpMode===false){
 		ctx.drawImage(Images["background"], 720*(i+Math.floor(camera.x/2160))-camera.x/3, 0);
+		}else{
+			ctx.drawImage(Images["trump"], 720*(i+Math.floor(camera.x/2160))-camera.x/3, 0);
+		}
 	}
 }
 
@@ -1023,10 +1056,32 @@ function drawHud() {
 		ctx.strokeStyle = '#000000';
 		ctx.strokeText("Score: " + score, 10, 50);
 		ctx.strokeText("Jumps: " + level, 10, 90);
+		if(gravity!=0.2){
+			ctx.strokeText("Gravity: " + Math.abs(Math.ceil((gravity-0.2)*50)), 900, 50);
+			if(gravity>0.2){
+				ctx.drawImage(Images["arrowdown"], 1140, 20);
+			}else{
+				ctx.drawImage(Images["arrowup"], 1140, 20);
+			}
+		}
+		if(RESISTANCE!=0.2){
+			ctx.strokeText("Wind: " + Math.abs(Math.ceil((RESISTANCE-0.2)*50)), 900, 90);
+			if(RESISTANCE>0.2){
+				ctx.drawImage(Images["arrowleft"], 1060, 62);
+			}else{
+				ctx.drawImage(Images["arrowright"], 1060, 62);
+			}
+		}
 		ctx.lineWidth = 1;
 		ctx.fillStyle = '#ffffff';
 		ctx.fillText("Score: " + score, 10, 50);
 		ctx.fillText("Jumps: " + level, 10, 90);
+		if(gravity!=0.2){
+			ctx.fillText("Gravity: " + Math.abs(Math.ceil((gravity-0.2)*50)), 900, 50);
+		}
+		if(RESISTANCE!=0.2){
+			ctx.fillText("Wind: " + Math.abs(Math.ceil((RESISTANCE-0.2)*50)), 900, 90);
+		}
 		ctx.stroke();
 		for(i=0;i<lives-1;i++){
 			ctx.drawImage(Images["life"], i*70+20, 650, 50, 50);
@@ -1087,6 +1142,13 @@ function drawHud() {
 		ctx.lineWidth = 1;
 		ctx.fillStyle = '#000000';
 		ctx.fillText("Click to start",640,660);
+		ctx.lineWidth = 7;
+		ctx.strokeStyle = '#000000';
+		ctx.font = "15px pusab";
+		ctx.strokeText("Music by 1f1n1ty and Donald Trump",1050,695);
+		ctx.lineWidth = 1;
+		ctx.fillStyle = '#FFFFFF';
+		ctx.fillText("Music by 1f1n1ty and Donald Trump",1050,695);
 	}
 	if(playerState===GG){
 		ctx.textAlign="center";
