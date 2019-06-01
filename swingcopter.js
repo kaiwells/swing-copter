@@ -139,7 +139,7 @@ var scoreTimer = 100;
 var lives = 3;
 var sequences = [200, 180, 160, 140, 120, 140, 120, 100, 80, 70, 100, 80, 70];
 var gravitySequences = [0.2, 0.16, 0.24, 0.22, 0.26, 0.2, 0.2, 0.28, 0.12, 0.16, 0.2, 0.18, 0.3, 0.24, 0.28, 0.2, 0.16, 0.24, 0.26, 0.22, 0.2, 0.16, 0.32, 0.1, 0.3, 0.2];
-var resistanceSequences = [0.2, 0.2, 0.26, 0.16, 0.24, 0.2, 0.22, 0.24, 0.18, 0.28, 0.2, 0.22, 0.14, 0.18, 0.26, 0.2, 0.24, 0.16, 0.12, 0.28, 0.2, 0.26, 0.12, 0.3, 0.1, 0.2];
+var resistanceSequences = [0.1, 0.1, 0.13, 0.08, 0.12, 0.1, 0.11, 0.12, 0.09, 0.14, 0.1, 0.11, 0.07, 0.09, 0.13, 0.1, 0.12, 0.08, 0.06, 0.14, 0.1, 0.13, 0.06, 0.15, 0.05, 0.1];
 var resizes = [3, 2, 1, 0, -1];
 var level = 0;
 var hacks = false;
@@ -465,9 +465,9 @@ function updatePlayer() {
 		player.vy = player.y-originalY;
 		player.ropeRotation+=player.rotationVelocity;
 		if(player.ropeRotation>0){
-			player.rotationVelocity-=0.1;
+			player.rotationVelocity-=0.05;
 		} else {
-			player.rotationVelocity+=0.1;
+			player.rotationVelocity+=0.05;
 		}
 	} else if (playerState===JUMPED) {
 		player.x += player.vx;
@@ -1089,7 +1089,7 @@ function updateTimer() {
 		if(attachTimer>=ROPETIME){
 			playerState=SWINGING;
 			player.ropeRotation=Math.atan((attachPointX-player.x-player.w+camera.x)/(player.y-attachPointY-camera.y))*-180/Math.PI;
-			player.rotationVelocity=-2;
+			player.rotationVelocity=-1.5;
 		}
 	}
 }
@@ -1116,9 +1116,9 @@ function drawHud() {
 				ctx.drawImage(Images["arrowup"], 1140, 20);
 			}
 		}
-		if(RESISTANCE!=0.2){
-			ctx.strokeText("Wind: " + Math.abs(Math.ceil((RESISTANCE-0.2)*50)), 900, 90);
-			if(RESISTANCE>0.2){
+		if(RESISTANCE!=0.1){
+			ctx.strokeText("Wind: " + Math.abs(Math.ceil((RESISTANCE-0.1)*50)), 900, 90);
+			if(RESISTANCE>0.1){
 				ctx.drawImage(Images["arrowleft"], 1060, 62);
 			}else{
 				ctx.drawImage(Images["arrowright"], 1060, 62);
@@ -1131,8 +1131,8 @@ function drawHud() {
 		if(gravity!=0.2){
 			ctx.fillText("Gravity: " + Math.abs(Math.ceil((gravity-0.2)*50)), 900, 50);
 		}
-		if(RESISTANCE!=0.2){
-			ctx.fillText("Wind: " + Math.abs(Math.ceil((RESISTANCE-0.2)*50)), 900, 90);
+		if(RESISTANCE!=0.1){
+			ctx.fillText("Wind: " + Math.abs(Math.ceil((RESISTANCE-0.1)*50)), 900, 90);
 		}
 		ctx.stroke();
 		for(i=0;i<lives-1;i++){
